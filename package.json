@@ -9,7 +9,7 @@
     "test": "vitest run --config vitest.config.ts unit",
     "test:coverage": "vitest run --config vitest.config.ts unit --coverage",
     "test:e2e": "vitest run --config vitest.config.ts e2e",
-    "test:e2e:coverage": "vitest run --config vitest.config.ts e2e --coverage",
+    "test:e2e:coverage": "vitest run --config vitest.config.ts e2e --coverage --coverage.reportsDirectory=coverage-e2e",
     "prisma:migrate": "prisma migrate dev",
     "prisma:generate": "prisma generate"
   },

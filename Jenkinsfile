@@ -76,7 +76,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 echo '🔍 Analyse SonarQube...'
-                withSonarQubeEnv('sonarqube') {
+                withSonarQubeEnv('sonarqube-server-1') {
                     sh '''
                         npx sonarqube-scanner \
                             -Dsonar.projectKey=marius-tasklist-backend \
