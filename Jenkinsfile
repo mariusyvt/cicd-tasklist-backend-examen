@@ -34,6 +34,13 @@ pipeline {
             }
         }
 
+        stage('Generate Prisma Client') {
+            steps {
+                echo '🔧 Génération du client Prisma...'
+                sh 'npx prisma generate'
+            }
+        }
+
         stage('Build') {
             steps {
                 echo '🏗️ Construction du projet...'
@@ -46,12 +53,37 @@ pipeline {
                 echo '✅ Exécution des tests unitaires...'
                 sh 'npm run test:coverage'
             }
+            post {
+                always {
+                    junit allowEmptyResults: true, testResults: 'reports/junit.xml'
+                    publishHTML(target: [
+                        allowMissing: true,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'coverage/lcov-report',
+                        reportFiles: 'index.html',
+                        reportName: 'Unit Tests Coverage Report'
+                    ])
+                }
+            }
         }
 
         stage('E2E Tests') {
             steps {
                 echo '✅ Exécution des tests E2E...'
                 sh 'npm run test:e2e:coverage'
+            }
+            post {
+                always {
+                    publishHTML(target: [
+                        allowMissing: true,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'coverage-e2e/lcov-report',
+                        reportFiles: 'index.html',
+                        reportName: 'E2E Tests Coverage Report'
+                    ])
+                }
             }
         }
 
@@ -79,6 +111,42 @@ pipeline {
                         -t ${IMAGE_NAME}:latest \
                         .
                 '''
+            }
+        }
+
+        stage('Security Scan - Trivy') {
+            steps {
+                echo '🔒 Analyse de sécurité avec Trivy...'
+                sh '''
+                    # Scan des vulnérabilités de l'image Docker
+                    trivy image --exit-code 0 --severity LOW,MEDIUM,HIGH,CRITICAL \
+                        --format table ${IMAGE_NAME}:${IMAGE_TAG}
+                    
+                    # Génération du rapport JSON
+                    trivy image --format json --output trivy-report.json \
+                        ${IMAGE_NAME}:${IMAGE_TAG}
+                '''
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'trivy-report.json', allowEmptyArchive: true
+                }
+            }
+        }
+
+        stage('Generate SBOM (SPDX)') {
+            steps {
+                echo '📋 Génération du SBOM au format SPDX...'
+                sh '''
+                    # Génération du SBOM au format SPDX avec Trivy
+                    trivy image --format spdx-json --output sbom-spdx.json \
+                        ${IMAGE_NAME}:${IMAGE_TAG}
+                '''
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'sbom-spdx.json', allowEmptyArchive: true
+                }
             }
         }
 
