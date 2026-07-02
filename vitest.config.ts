@@ -14,6 +14,7 @@ export default defineConfig({
       exclude: [
         "src/__tests__/**",
         "src/server.ts",
+        "src/lib/prisma.ts",
         "**/*.config.ts",
       ],
     },

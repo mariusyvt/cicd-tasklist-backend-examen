@@ -1,0 +1,51 @@
+# Dépendances
+node_modules
+
+# Fichiers de build
+dist
+
+# Fichiers de test et couverture
+coverage
+reports
+*.test.ts
+*.spec.ts
+src/__tests__
+
+# Fichiers de configuration de développement
+.env
+.env.*
+!.env.example
+
+# Fichiers Git
+.git
+.gitignore
+
+# Fichiers IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Fichiers de documentation
+*.md
+!README.md
+
+# Fichiers Jenkins et CI/CD
+Jenkinsfile
+sonar-project.properties
+
+# Fichiers de logs
+*.log
+npm-debug.log*
+
+# Fichiers temporaires
+tmp
+temp
+.cache
+
+# Fichiers de configuration Vitest
+vitest.config.ts
+
+# Fichiers divers
+.DS_Store
+Thumbs.db
