@@ -76,12 +76,17 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 echo '🔍 Analyse SonarQube...'
-                withSonarQubeEnv('sonarqube-server-1') {
+                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
                     sh '''
                         npx sonarqube-scanner \
+                            -Dsonar.host.url=https://sonarqube.cicd.kits.ext.educentre.fr \
+                            -Dsonar.token=${SONAR_TOKEN} \
                             -Dsonar.projectKey=marius-tasklist-backend \
+                            -Dsonar.projectName=Marius-TaskList-Backend \
                             -Dsonar.sources=src \
-                            -Dsonar.coverage.exclusions=**/__tests__/** \
+                            -Dsonar.exclusions=src/__tests__/**,**/*.test.ts \
+                            -Dsonar.tests=src/__tests__ \
+                            -Dsonar.test.inclusions=**/*.test.ts \
                             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info,coverage-e2e/lcov.info
                     '''
                 }
