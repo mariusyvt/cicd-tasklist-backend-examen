@@ -109,13 +109,27 @@ pipeline {
             steps {
                 echo '🔒 Analyse de sécurité avec Trivy...'
                 sh '''
-                    # Scan des vulnérabilités de l'image Docker
-                    trivy image --exit-code 0 --severity LOW,MEDIUM,HIGH,CRITICAL \
-                        --format table ${IMAGE_NAME}:${IMAGE_TAG}
+                    echo "=========================================="
+                    echo "🔍 SCAN DE SÉCURITÉ - IMAGE DOCKER"
+                    echo "=========================================="
+                    echo "Image: ${IMAGE_NAME}:${IMAGE_TAG}"
+                    echo ""
                     
-                    # Génération du rapport JSON
-                    trivy image --format json --output trivy-report.json \
+                    # Scan des vulnérabilités HIGH et CRITICAL seulement (affichage concis)
+                    trivy image --exit-code 0 --severity HIGH,CRITICAL \
+                        --format table --scanners vuln \
                         ${IMAGE_NAME}:${IMAGE_TAG}
+                    
+                    echo ""
+                    echo "=========================================="
+                    echo "📊 RÉSUMÉ DU SCAN"
+                    echo "=========================================="
+                    
+                    # Génération du rapport JSON complet (archivé)
+                    trivy image --format json --output trivy-report.json \
+                        --scanners vuln ${IMAGE_NAME}:${IMAGE_TAG}
+                    
+                    echo "✅ Rapport complet sauvegardé: trivy-report.json"
                 '''
             }
             post {
@@ -129,9 +143,24 @@ pipeline {
             steps {
                 echo '📋 Génération du SBOM au format SPDX...'
                 sh '''
+                    echo "=========================================="
+                    echo "📦 GÉNÉRATION DU SBOM (SPDX)"
+                    echo "=========================================="
+                    echo "Image: ${IMAGE_NAME}:${IMAGE_TAG}"
+                    echo ""
+                    
                     # Génération du SBOM au format SPDX avec Trivy
                     trivy image --format spdx-json --output sbom-spdx.json \
                         ${IMAGE_NAME}:${IMAGE_TAG}
+                    
+                    echo ""
+                    echo "✅ SBOM généré avec succès: sbom-spdx.json"
+                    echo ""
+                    echo "📊 Informations du SBOM:"
+                    head -50 sbom-spdx.json
+                    echo "..."
+                    echo ""
+                    echo "=========================================="
                 '''
             }
             post {
