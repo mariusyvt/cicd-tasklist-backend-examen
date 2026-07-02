@@ -56,14 +56,7 @@ pipeline {
             post {
                 always {
                     junit allowEmptyResults: true, testResults: 'reports/junit.xml'
-                    publishHTML(target: [
-                        allowMissing: true,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'coverage/lcov-report',
-                        reportFiles: 'index.html',
-                        reportName: 'Unit Tests Coverage Report'
-                    ])
+                    archiveArtifacts artifacts: 'coverage/**/*', allowEmptyArchive: true
                 }
             }
         }
@@ -75,14 +68,7 @@ pipeline {
             }
             post {
                 always {
-                    publishHTML(target: [
-                        allowMissing: true,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'coverage-e2e/lcov-report',
-                        reportFiles: 'index.html',
-                        reportName: 'E2E Tests Coverage Report'
-                    ])
+                    archiveArtifacts artifacts: 'coverage-e2e/**/*', allowEmptyArchive: true
                 }
             }
         }
